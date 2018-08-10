@@ -9,3 +9,6 @@ pip-delete-this-directory.txt
 
 # Environments
 .venv
+
+# Settings
+settings.ini

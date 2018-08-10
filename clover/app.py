@@ -1,8 +1,8 @@
 import falcon
 
-from .test_method import test_JSON
+from .signup import Signup
 
 api = application = falcon.API()
 
-test_JSON = test_JSON()
-api.add_route('/test_JSON', test_JSON)
+signup = Signup()
+api.add_route('/signup', signup)

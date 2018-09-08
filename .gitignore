@@ -12,3 +12,4 @@ pip-delete-this-directory.txt
 
 # Settings
 settings.ini
+Dockerfile

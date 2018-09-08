@@ -1,8 +1,8 @@
 import falcon
 
-from .signup import Signup
+from .addUser import addUser
 
 api = application = falcon.API()
 
-signup = Signup()
-api.add_route('/signup', signup)
+addUser = addUser()
+api.add_route('/users', addUser)

@@ -13,7 +13,7 @@ class Bars_controller:
         self._client_id = config['FOURSQUARE']['CLIENT_ID']
         self._client_secret = config['FOURSQUARE']['CLIENT_SECRET']
         self._section = 'drinks'
-        self._base_url = 'https://api.foursquare.com/v2/venues/explore?'
+        self._base_url = 'https://api.foursquare.com/v2/venues/'
         self._version = '20181103'
 
     def _get_bars(self, limit, ll):
@@ -26,10 +26,11 @@ class Bars_controller:
                    'limit': limit
                    }
 
-        self._response = requests.get(self._base_url, params=payload)
+        self._response = requests.get(self._base_url + 'explore',
+                                      params=payload)
         return self._response.status_code
 
-    def _extract_bar_data(self, limit, ll):
+    def _extract_bars_list(self, limit, ll):
 
         self._get_bars(limit, ll)
 
@@ -48,7 +49,7 @@ class Bars_controller:
     def get_venues(self, limit, ll):
         venues_list = []
         try:
-            items_list = self._extract_bar_data(limit, ll)
+            items_list = self._extract_bars_list(limit, ll)
         except RuntimeError:
             return None
 
@@ -62,8 +63,25 @@ class Bars_controller:
 
         return json.dumps(venues_list, ensure_ascii=False)
 
+    def get_venue_details(self, id):
+        payload = {'client_id': self._client_id,
+                   'client_secret': self._client_secret,
+                   'v': self._version,
+                   }
 
-if __name__ == '__main__':
+        self._response = requests.get(self._base_url + id,
+                                      params=payload).json()['response']
 
-    bars = Bars_controller()
-    print(bars.get_venues(limit=10, ll='55.730149,37.61556'))
+        photo_url = (self._response['venue']['bestPhoto']['prefix'] +
+                     str(self._response['venue']['bestPhoto']['width']) + 'x' +
+                     str(self._response['venue']['bestPhoto']['height']) +
+                     self._response['venue']['bestPhoto']['suffix'])
+
+        venue_details = {'name': self._response['venue']['name'],
+                         'description': self._response['venue']['description'],
+                         'price': self._response['venue']['price']['tier'],
+                         'photo': photo_url,
+                         'url': self._response['venue']['url']
+                         }
+
+        return json.dumps(venue_details, ensure_ascii=False)

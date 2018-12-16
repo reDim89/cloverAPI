@@ -54,11 +54,17 @@ class Bars_controller:
             return None
 
         for item in items_list:
-            d = {'id': item['venue']['id'],
-                 'name': item['venue']['name'],
-                 'address': item['venue']['location']['address'],
-                 'lat': item['venue']['location']['lat'],
-                 'lng': item['venue']['location']['lng']}
+            try:
+                d = {'id': item['venue']['id'],
+                     'name': item['venue']['name'],
+                     'address': item['venue']['location']['address'],
+                     'lat': item['venue']['location']['lat'],
+                     'lng': item['venue']['location']['lng']}
+            except KeyError:
+                d = {'id': item['venue']['id'],
+                     'name': item['venue']['name'],
+                     'lat': item['venue']['location']['lat'],
+                     'lng': item['venue']['location']['lng']}
             venues_list.append(OrderedDict(sorted(d.items())))
 
         return json.dumps(venues_list, ensure_ascii=False)
@@ -78,7 +84,7 @@ class Bars_controller:
                      self._response['venue']['bestPhoto']['suffix'])
 
         venue_details = {'name': self._response['venue']['name'],
-                         'description': self._response['venue']['description'],
+                         # 'description':self._response['venue']['description']
                          'price': self._response['venue']['price']['tier'],
                          'photo': photo_url,
                          'url': self._response['venue']['url']

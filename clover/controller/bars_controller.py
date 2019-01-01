@@ -74,20 +74,41 @@ class Bars_controller:
                    'client_secret': self._client_secret,
                    'v': self._version,
                    }
-
+        # Запрос в FourSquare по id заведения
         self._response = requests.get(self._base_url + id,
                                       params=payload).json()['response']
 
-        photo_url = (self._response['venue']['bestPhoto']['prefix'] +
-                     str(self._response['venue']['bestPhoto']['width']) + 'x' +
-                     str(self._response['venue']['bestPhoto']['height']) +
-                     self._response['venue']['bestPhoto']['suffix'])
+        venue_name = self._response['venue']['name']
 
-        venue_details = {'name': self._response['venue']['name'],
-                         # 'description':self._response['venue']['description']
+        # Обработка на случай, если нет фото
+        try:
+            photo_url = (self._response['venue']['bestPhoto']['prefix'] +
+                         str(self._response['venue']['bestPhoto']['width']) + 'x' +
+                         str(self._response['venue']['bestPhoto']['height']) +
+                         self._response['venue']['bestPhoto']['suffix'])
+        except KeyError:
+            photo_url = 'No photo'
+            print('No photo for venue {0}'.format(venue_name))
+
+        # Обработка на случай, если нет описания
+        try:
+            venue_description = self._response['venue']['description']
+        except KeyError:
+            venue_description = 'No description'
+            print('No descritption for venue {0}'.format(venue_name))
+
+        # Обработка на случай, если нет урла
+        try:
+            venue_url = self._response['venue']['url']
+        except KeyError:
+            venue_url = 'No url'
+            print('No url for venue {0}'.format(venue_name))
+
+        venue_details = {'name': venue_name,
+                         'description': venue_description,
                          'price': self._response['venue']['price']['tier'],
                          'photo': photo_url,
-                         'url': self._response['venue']['url']
+                         'url': venue_url
                          }
 
         return json.dumps(venue_details, ensure_ascii=False)
